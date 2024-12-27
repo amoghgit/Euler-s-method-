@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Euler's Method Solution</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        table {
+            border-collapse: collapse;
+            margin-top: 20px;
+            width: 100%;
+            max-width: 400px;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            text-align: center;
+            padding: 8px;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .container {
+            display: flex;
+            gap: 20px; /* Adds a small gap between the table and graph */
+            align-items: center;
+        }
+        canvas {
+            max-width: 100%;
+            width: 500px; /* Increased graph size */
+            height: 400px;
+        }
+        h2 {
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Euler's Method: Solution and Graph</h1>
+    <div class="container">
+        <!-- Table Section -->
+        <div>
+            <h2>Solution Table</h2>
+            <table id="solutionTable">
+                <thead>
+                    <tr>
+                        <th>x</th>
+                        <th>y</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Data will be inserted here -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Graph Section -->
+        <div>
+            <h2>Solution Graph</h2>
+            <canvas id="eulerChart"></canvas>
+        </div>
+    </div>
+
+    <script>
+        // Euler's Method Function
+        function eulersMethod(dydx, x0, y0, h, steps) {
+            let xValues = [x0];
+            let yValues = [y0];
+
+            for (let i = 0; i < steps; i++) {
+                let yNext = yValues[i] + h * dydx(xValues[i], yValues[i]);
+                let xNext = xValues[i] + h;
+                xValues.push(xNext);
+                yValues.push(yNext);
+            }
+
+            return { xValues, yValues };
+        }
+
+        // Differential equation: dy/dx = xy^2
+        function dydx(x, y) {
+            return x * Math.pow(y, 2);
+        }
+
+        // Initial conditions and step size
+        const x0 = 0;
+        const y0 = 1;
+        const h = 0.2;
+        const steps = 5;
+
+        // Solve using Euler's Method
+        const { xValues, yValues } = eulersMethod(dydx, x0, y0, h, steps);
+
+        // Populate the solution table
+        const tableBody = document.querySelector("#solutionTable tbody");
+        for (let i = 0; i < xValues.length; i++) {
+            const row = document.createElement("tr");
+            const xCell = document.createElement("td");
+            const yCell = document.createElement("td");
+            xCell.textContent = xValues[i].toFixed(2);
+            yCell.textContent = yValues[i].toFixed(6);
+            row.appendChild(xCell);
+            row.appendChild(yCell);
+            tableBody.appendChild(row);
+        }
+
+        // Plot the graph using Chart.js
+        const ctx = document.getElementById('eulerChart').getContext('2d');
+        const eulerChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: xValues.map(x => x.toFixed(2)), // Format x-values for display
+                datasets: [{
+                    label: 'y vs x (Euler\'s Method)',
+                    data: yValues,
+                    borderColor: 'blue',
+                    backgroundColor: 'rgba(0, 0, 255, 0.1)',
+                    tension: 0.2,
+                    pointRadius: 4,
+                    pointBackgroundColor: 'blue'
+                }]
+            },
+            options: {
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'x'
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'y'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
